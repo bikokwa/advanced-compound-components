@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 
 const Checkbox = ({ children }) => {
@@ -19,30 +19,42 @@ const Checkbox = ({ children }) => {
 };
 
 const CheckboxInput = ({ checked, setChecked }) => {
+  const [_checked, _setChecked] = useState(!!checked);
+
+  useEffect(() => {
+    if (!setChecked) {
+      console.warn(
+        "CheckboxInput should be called inside Checkbox for maximum benefit"
+      );
+    }
+  }, []);
+
   return (
     <input
       type="checkbox"
-      checked={checked}
-      onChange={(e) => setChecked(e.target.checked)}
+      checked={_checked}
+      onChange={(e) => {
+        _setChecked(e.target.checked);
+        if (setChecked) {
+          setChecked(e.target.checked);
+        }
+      }}
     />
   );
 };
 
 const Label = ({ setChecked, children }) => {
+  if (!setChecked) {
+    throw new Error("Label should be called from Checkbox component");
+  }
+
   return (
     <label onClick={() => setChecked((state) => !state)}>{children}</label>
   );
 };
 
 function App() {
-  return (
-    <div className="App">
-      <Checkbox>
-        <CheckboxInput />
-        <Label>Check box label</Label>
-      </Checkbox>
-    </div>
-  );
+  return <CheckboxInput />;
 }
 
 export default App;
