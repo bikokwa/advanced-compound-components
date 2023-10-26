@@ -1,52 +1,46 @@
-import React, { useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import "./App.css";
+
+const CheckboxInterface = createContext(null);
 
 const Checkbox = ({ children }) => {
   const [checked, setChecked] = useState(true);
 
-  return React.Children.map(children, (child) => {
-    console.log(child);
-
-    if (child.type !== Label && child.type !== CheckboxInput) {
-      throw new Error("No custom element supported");
-    }
-    const clone = React.cloneElement(child, {
-      checked,
-      setChecked,
-    });
-    return clone;
-  });
+  return (
+    <CheckboxInterface.Provider value={{ checked, setChecked }}>
+      {children}
+    </CheckboxInterface.Provider>
+  );
 };
 
-const CheckboxInput = ({ checked, setChecked }) => {
-  const [_checked, _setChecked] = useState(!!checked);
+const CheckboxInput = () => {
+  const context = useContext(CheckboxInterface);
 
-  useEffect(() => {
-    if (!setChecked) {
-      console.warn(
-        "CheckboxInput should be called inside Checkbox for maximum benefit"
-      );
-    }
-  }, []);
+  if (!context) {
+    throw new Error("Should be used inside <Checkbox />");
+  }
+
+  const { checked, setChecked } = context;
 
   return (
     <input
       type="checkbox"
-      checked={_checked}
+      checked={checked}
       onChange={(e) => {
-        _setChecked(e.target.checked);
-        if (setChecked) {
-          setChecked(e.target.checked);
-        }
+        setChecked(e.target.checked);
       }}
     />
   );
 };
 
-const Label = ({ setChecked, children }) => {
-  if (!setChecked) {
+const Label = ({ children }) => {
+  const context = useContext(CheckboxInterface);
+
+  if (!context) {
     throw new Error("Label should be called from Checkbox component");
   }
+
+  const { setChecked } = context;
 
   return (
     <label onClick={() => setChecked((state) => !state)}>{children}</label>
@@ -54,7 +48,14 @@ const Label = ({ setChecked, children }) => {
 };
 
 function App() {
-  return <CheckboxInput />;
+  return (
+    <Checkbox>
+      <CheckboxInput />
+      <div>
+        <Label>Click Me</Label>
+      </div>
+    </Checkbox>
+  );
 }
 
 export default App;
