@@ -5,6 +5,11 @@ const Checkbox = ({ children }) => {
   const [checked, setChecked] = useState(true);
 
   return React.Children.map(children, (child) => {
+    console.log(child);
+
+    if (child.type !== Label && child.type !== CheckboxInput) {
+      throw new Error("No custom element supported");
+    }
     const clone = React.cloneElement(child, {
       checked,
       setChecked,
