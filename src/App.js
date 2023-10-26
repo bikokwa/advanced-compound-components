@@ -1,23 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+
+const Checkbox = ({ children }) => {
+  const [checked, setChecked] = useState(true);
+
+  return React.Children.map(children, (child) => {
+    const clone = React.cloneElement(child, {
+      checked,
+      setChecked,
+    });
+    return clone;
+  });
+};
+
+const CheckboxInput = ({ checked, setChecked }) => {
+  return (
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => setChecked(e.target.checked)}
+    />
+  );
+};
+
+const Label = ({ setChecked, children }) => {
+  return (
+    <label onClick={() => setChecked((state) => !state)}>{children}</label>
+  );
+};
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Checkbox>
+        <CheckboxInput />
+        <Label>Check box label</Label>
+      </Checkbox>
     </div>
   );
 }
